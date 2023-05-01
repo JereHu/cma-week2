@@ -154,26 +154,30 @@ st_crs(posmo_sf)
 
 # filter out home coordinates
 # make polygon https://www.keene.edu/campus/maps/tool/ 
-p1 = st_point(c(8.4245439, 47.3925710))
-p2 = st_point(c(8.4177632, 47.3888521))
-p3 = st_point(c(8.4177632, 47.3888521))
+p1 = st_point(c(8.4265439, 47.3955710))
+p2 = st_point(c(8.4267632, 47.3898521))
+p3 = st_point(c(8.4179950, 47.3890680))
 p4 = st_point(c(8.4178061, 47.3923967))
+
 
 poly = st_multipoint(c(p1, p2, p3, p4)) %>%
   st_cast("POLYGON") %>%
   st_sfc(crs = 4326) %>%
   st_transform(crs = 2056)
 
+
+not_covered_by  = function(x, y) !st_covered_by(x, y)
+
 posmo_sf <- posmo_sf |> 
   group_by("weekday") |>
   group_by("transport_mode") |>
-  filter(transport_mode == "Bike")
+  filter(transport_mode == "Bike")%>%
+  st_filter(poly, .predicate=not_covered_by)
 
 
 ggplot(data = posmo_sf)+
   geom_sf(aes(colour = weekday), alpha = 0.5)+
-  coord_sf(datum = 2056)
-
+  coord_sf(datum = 2056) 
 
 
 library(leaflet)
