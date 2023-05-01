@@ -55,4 +55,63 @@ wildschwein_BE <- wildschwein_BE |>
 wildschwein_BE <- wildschwein_BE |>
   mutate(speed_ms = steplength/diff_s)
 
+# Task 4
+# Cross-scale movement analysis
+
+caro <- read_delim("datasets/caro60.csv")
+caro <- st_as_sf(caro, coords = c("E", "N"), crs = 2056, remove = FALSE)
+
+caro_3 <- caro[seq(from = 1, to = nrow(caro), by=3),]
+caro_6 <- caro[seq(from = 1, to = nrow(caro), by=6),]
+caro_9 <- caro[seq(from = 1, to = nrow(caro), by=9),]
+# nrow(caro)
+# nrow(caro_3)
+# nrow(caro_6)
+# nrow(caro_9)
+
+#caro timelag, steplentgh, speed
+caro <- caro |>
+  mutate(diff_s = as.numeric(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro <- caro |>
+  mutate(steplength = sqrt((E - lead(E))^2 + (N - lead(N))^2))
+caro <- caro %>%
+  mutate(speed_ms = steplength/diff_s)
+
+#caro3 timelag, steplentgh, speed
+caro_3 <- caro_3 |>
+  mutate(diff_s = as.numeric(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_3 <- caro_3 |>
+  mutate(steplength = sqrt((E - lead(E))^2 + (N - lead(N))^2))
+caro_3 <- caro_3 %>%
+  mutate(speed_ms = steplength/diff_s)
+
+#caro_6 timelag, steplentgh, speed
+caro_6 <- caro_6 |>
+  mutate(diff_s = as.numeric(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_6 <- caro_6 |>
+  mutate(steplength = sqrt((E - lead(E))^2 + (N - lead(N))^2))
+caro_6 <- caro_6 %>%
+  mutate(speed_ms = steplength/diff_s)
+
+#caro_9 timelag, steplentgh, speed
+caro_9 <- caro_9 |>
+  mutate(diff_s = as.numeric(difftime(lead(DatetimeUTC), DatetimeUTC, units = "secs")))
+caro_9 <- caro_9 |>
+  mutate(steplength = sqrt((E - lead(E))^2 + (N - lead(N))^2))
+caro_9 <- caro_9 %>%
+  mutate(speed_ms = steplength/diff_s)
+
+# lineplots
+colors <- c("1 minute" = "red", "3 minutes" = "green", "6 minutes" = "lightblue", "9 minutes" = "violet")
+
+ggplot(data = caro) +
+  geom_line(data=caro_3, aes(x=DatetimeUTC, y=speed_ms, color = "3 minutes"))+
+  geom_line(data = caro_6, aes(x=DatetimeUTC, y=speed_ms, color="6 minutes"))+
+  geom_line(data = caro_9, aes(x=DatetimeUTC, y=speed_ms, color = "9 minutes"))+
+  geom_line(data = caro, aes(x=DatetimeUTC, y=speed_ms, color = "1 minute"))+
+  labs(x="Time", y="Speed (m/s)") +
+  scale_color_manual(values = colors)
+
+# mapping
+
 
