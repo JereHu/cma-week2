@@ -2,7 +2,6 @@
 library("readr") 
 library("sf") 
 library("ggplot2")
-library("tmap")
 
 wildschwein_BE <- read_delim("datasets/wildschwein_BE_2056.csv", ",")
 
@@ -146,15 +145,40 @@ ggplot(data = caro, aes(x=E, y=N))+
   coord_sf(datum = 2056)
 
 # Task 7
-posmo <- read_delim("datasets/posmo_2023-04-10T00_00_00+02_00-2023-04-28T23_59_59+02_00.csv")
+posmo <- read_delim("datasets/posmo_2023-04-10T00_00_00+02_00-2023-04-30T23_59_59+02_00.csv")
 posmo_sf <- st_as_sf(posmo, coords = c("lon_x", "lat_y"), crs = 4326, remove = FALSE)
 
 st_crs(posmo_sf)
 posmo_sf <- st_transform(posmo_sf, crs = 2056)
 st_crs(posmo_sf)
 
+# filter out home coordinates
+# make polygon https://www.keene.edu/campus/maps/tool/ 
+p1 = st_point(c(8.4245439, 47.3925710))
+p2 = st_point(c(8.4177632, 47.3888521))
+p3 = st_point(c(8.4177632, 47.3888521))
+p4 = st_point(c(8.4178061, 47.3923967))
+
+poly = st_multipoint(c(p1, p2, p3, p4)) %>%
+  st_cast("POLYGON") %>%
+  st_sfc(crs = 4326) %>%
+  st_transform(crs = 2056)
+
 posmo_sf <- posmo_sf |> 
-  group_by("weekday")
+  group_by("weekday") |>
+  group_by("transport_mode") |>
+  filter(transport_mode == "Bike")
+
 
 ggplot(data = posmo_sf)+
-  geom_sf(aes(colour = weekday))
+  geom_sf(aes(colour = weekday), alpha = 0.5)+
+  coord_sf(datum = 2056)
+
+
+
+library(leaflet)
+posmo_leaf <- st_transform(posmo_sf, crs = 4326)
+leaflet(posmo_leaf) %>%
+  addCircles(lat = ~lat_y, lng = ~lon_x, radius = 1 ) %>%
+  addTiles()
+
