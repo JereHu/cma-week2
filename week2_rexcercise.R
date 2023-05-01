@@ -49,7 +49,7 @@ E1 <- 2570409
 E2 <- 2570402
 
 wildschwein_BE <- wildschwein_BE |>
-  group_by(TierName) |>
+  group_by(TierName) %>%
   mutate(steplength = sqrt((E - lead(E))^2 + (N - lead(N))^2))
 
 wildschwein_BE <- wildschwein_BE |>
