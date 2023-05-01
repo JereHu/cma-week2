@@ -2,6 +2,7 @@
 library("readr") 
 library("sf") 
 library("ggplot2")
+library("tmap")
 
 wildschwein_BE <- read_delim("datasets/wildschwein_BE_2056.csv", ",")
 
@@ -116,34 +117,44 @@ ggplot(data = caro) +
 # Since we get less datapoints, the speed smoothes out (as pig stays within a pen and has high chance of returning to a spot close to the one before)
 
 
-#I was not able to get rid of the alpha scale. I did not have time to figure it out
 # mapping caro 3
 ggplot(data = caro, aes(x=E, y=N))+
-  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
-  geom_path(aes(color = "1 minute",  alpha = 0.8))+
-  geom_sf(caro_3, mapping = aes(color = "3 minutes", alpha = 1))+
-  geom_path(caro_3, mapping = aes(color = "3 minutes", alpha = 1))+
+  geom_sf(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_path(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_sf(caro_3, mapping = aes(color = "3 minutes"), alpha = 1)+
+  geom_path(caro_3, mapping = aes(color = "3 minutes"), alpha = 1)+
   labs(color = "Trajectory")+
   ggtitle("Comparing original- with 3 minutes-resampled data")+
   coord_sf(datum = 2056)
 
 # mapping caro 6
 ggplot(data = caro, aes(x=E, y=N))+
-  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
-  geom_path(aes(color = "1 minute",  alpha = 0.8))+
-  geom_sf(caro_6, mapping = aes(color = "6 minutes", alpha = 1))+
-  geom_path(caro_6, mapping = aes(color = "6 minutes", alpha = 1))+
+  geom_sf(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_path(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_sf(caro_6, mapping = aes(color = "6 minutes"), alpha = 1)+
+  geom_path(caro_6, mapping = aes(color = "6 minutes"), alpha = 1)+
   ggtitle("Comparing original- with 6 minutes-resampled data")+
   coord_sf(datum = 2056)
 
 # mapping caro 9
 ggplot(data = caro, aes(x=E, y=N))+
-  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
-  geom_path(aes(color = "1 minute",  alpha = 0.8))+
-  geom_sf(caro_9, mapping = aes(color = "6 minutes", alpha = 1))+
-  geom_path(caro_9, mapping = aes(color = "6 minutes", alpha = 1))+
+  geom_sf(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_path(aes(color = "1 minute"),  alpha = 0.3)+
+  geom_sf(caro_9, mapping = aes(color = "6 minutes"), alpha = 1)+
+  geom_path(caro_9, mapping = aes(color = "6 minutes"), alpha = 1)+
   ggtitle("Comparing original- with 9 minutes-resampled data")+
   coord_sf(datum = 2056)
 
+# Task 7
+posmo <- read_delim("datasets/posmo_2023-04-10T00_00_00+02_00-2023-04-28T23_59_59+02_00.csv")
+posmo_sf <- st_as_sf(posmo, coords = c("lon_x", "lat_y"), crs = 4326, remove = FALSE)
 
+st_crs(posmo_sf)
+posmo_sf <- st_transform(posmo_sf, crs = 2056)
+st_crs(posmo_sf)
 
+posmo_sf <- posmo_sf |> 
+  group_by("weekday")
+
+ggplot(data = posmo_sf)+
+  geom_sf(aes(colour = weekday))
