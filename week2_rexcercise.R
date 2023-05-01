@@ -110,8 +110,40 @@ ggplot(data = caro) +
   geom_line(data = caro_9, aes(x=DatetimeUTC, y=speed_ms, color = "9 minutes"))+
   geom_line(data = caro, aes(x=DatetimeUTC, y=speed_ms, color = "1 minute"))+
   labs(x="Time", y="Speed (m/s)") +
-  scale_color_manual(values = colors)
+  scale_color_manual(values = colors)+
+  ggtitle("Comparing derived speed at different sampling intervals")
+# interpretation: The higher the time granularity, the higher peaks in speed we get.
+# Since we get less datapoints, the speed smoothes out (as pig stays within a pen and has high chance of returning to a spot close to the one before)
 
-# mapping
+
+#I was not able to get rid of the alpha scale. I did not have time to figure it out
+# mapping caro 3
+ggplot(data = caro, aes(x=E, y=N))+
+  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
+  geom_path(aes(color = "1 minute",  alpha = 0.8))+
+  geom_sf(caro_3, mapping = aes(color = "3 minutes", alpha = 1))+
+  geom_path(caro_3, mapping = aes(color = "3 minutes", alpha = 1))+
+  labs(color = "Trajectory")+
+  ggtitle("Comparing original- with 3 minutes-resampled data")+
+  coord_sf(datum = 2056)
+
+# mapping caro 6
+ggplot(data = caro, aes(x=E, y=N))+
+  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
+  geom_path(aes(color = "1 minute",  alpha = 0.8))+
+  geom_sf(caro_6, mapping = aes(color = "6 minutes", alpha = 1))+
+  geom_path(caro_6, mapping = aes(color = "6 minutes", alpha = 1))+
+  ggtitle("Comparing original- with 6 minutes-resampled data")+
+  coord_sf(datum = 2056)
+
+# mapping caro 9
+ggplot(data = caro, aes(x=E, y=N))+
+  geom_sf(aes(color = "1 minute",  alpha = 0.8))+
+  geom_path(aes(color = "1 minute",  alpha = 0.8))+
+  geom_sf(caro_9, mapping = aes(color = "6 minutes", alpha = 1))+
+  geom_path(caro_9, mapping = aes(color = "6 minutes", alpha = 1))+
+  ggtitle("Comparing original- with 9 minutes-resampled data")+
+  coord_sf(datum = 2056)
+
 
 
