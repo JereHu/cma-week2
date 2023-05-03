@@ -1,7 +1,10 @@
+
+
 #Task 1
 library("readr") 
 library("sf") 
 library("ggplot2")
+library("dplyr")
 
 wildschwein_BE <- read_delim("datasets/wildschwein_BE_2056.csv", ",")
 
@@ -39,6 +42,12 @@ wildschwein_BE |>
   geom_line()
 # we do this, to find out when the pigs move and when we get the most datapoints
 
+# 3 individuals
+print(unique(wildschwein_BE$TierName))
+# tracked for 338 days, 
+print(difftime(max(wildschwein_BE$DatetimeUTC), min(wildschwein_BE$DatetimeUTC)))
+
+
 
 ## Task 3
 ## Find links to geodetic distance converstion
@@ -54,6 +63,7 @@ wildschwein_BE <- wildschwein_BE |>
 
 wildschwein_BE <- wildschwein_BE |>
   mutate(speed_ms = steplength/diff_s)
+#speed in meter/secs
 
 # Task 4
 # Cross-scale movement analysis
@@ -159,29 +169,30 @@ p2 = st_point(c(8.4267632, 47.3898521))
 p3 = st_point(c(8.4179950, 47.3890680))
 p4 = st_point(c(8.4178061, 47.3923967))
 
-
+# make polygon
 poly = st_multipoint(c(p1, p2, p3, p4)) %>%
   st_cast("POLYGON") %>%
   st_sfc(crs = 4326) %>%
   st_transform(crs = 2056)
 
-
+# create function that 'cuts' out the area covered by the polygon
 not_covered_by  = function(x, y) !st_covered_by(x, y)
 
-posmo_sf <- posmo_sf |> 
+# group weekdays, leave out everything that's not bike data
+posmo_sf_cut <- posmo_sf |> 
   group_by("weekday") |>
   group_by("transport_mode") |>
   filter(transport_mode == "Bike")%>%
   st_filter(poly, .predicate=not_covered_by)
 
-
-ggplot(data = posmo_sf)+
+# map in ggplot (no background map)
+ggplot(data = posmo_sf_cut)+
   geom_sf(aes(colour = weekday), alpha = 0.5)+
   coord_sf(datum = 2056) 
 
-
+# create leaflet map
 library(leaflet)
-posmo_leaf <- st_transform(posmo_sf, crs = 4326)
+posmo_leaf <- st_transform(posmo_sf_cut, crs = 4326)
 leaflet(posmo_leaf) %>%
   addCircles(lat = ~lat_y, lng = ~lon_x, radius = 1 ) %>%
   addTiles()
