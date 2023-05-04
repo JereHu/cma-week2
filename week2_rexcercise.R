@@ -155,7 +155,7 @@ ggplot(data = caro, aes(x=E, y=N))+
   coord_sf(datum = 2056)
 
 # Task 7
-posmo <- read_delim("datasets/posmo_2023-04-10T00_00_00+02_00-2023-04-30T23_59_59+02_00.csv")
+posmo <- read_delim("datasets/posmo_2023-04-10T00_00_00+02_00-2023-05-04T23_59_59+02_00.csv")
 posmo_sf <- st_as_sf(posmo, coords = c("lon_x", "lat_y"), crs = 4326, remove = FALSE)
 
 st_crs(posmo_sf)
@@ -178,7 +178,7 @@ poly = st_multipoint(c(p1, p2, p3, p4)) %>%
 # create function that 'cuts' out the area covered by the polygon
 not_covered_by  = function(x, y) !st_covered_by(x, y)
 
-# group weekdays, leave out everything that's not bike data
+# group weekdays, leave out everything that's not bike data, filter the polygon
 posmo_sf_cut <- posmo_sf |> 
   group_by("weekday") |>
   group_by("transport_mode") |>
